@@ -1,13 +1,14 @@
 import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
-from sc2.constants import LARVA, DRONE, OVERLORD
+from sc2.constants import LARVA, DRONE, OVERLORD, HATCHERY
 
 class ZergAI(sc2.BotAI):
     async def on_step(self, iteration):
         await self.distribute_workers()
         await self.build_workers()
         await self.build_overlords()
+        await self.expand()
 
     async def build_workers(self):
         larvae = self.units(LARVA)
@@ -20,6 +21,9 @@ class ZergAI(sc2.BotAI):
             if self.can_afford(OVERLORD) and larvae.exists:
                 await self.do(larvae.random.train(OVERLORD))
 
+    async def expand(self):
+        if self.can_afford(HATCHERY):
+            await self.expand_now()
 
 run_game(maps.get("AbyssalReefLE"), [
     Bot(Race.Zerg, ZergAI()),
